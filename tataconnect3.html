@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Tata Connect Dwarka</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Splash Screen */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .splash-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .splash-logo {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .splash-logo::before {
+            content: "🚀"; /* Changed icon for Tata Connect */
+            font-size: 3rem;
+        }
+
+        .splash-title {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-align: center;
+            margin-bottom: 1rem;
+            animation: slideUp 1s ease-out;
+        }
+
+        .splash-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            text-align: center;
+            animation: slideUp 1s ease-out 0.3s both;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+        .dot:nth-child(3) { animation-delay: 0s; }
+
+        /* Login Container */
+        .login-container {
+            display: none;
+            min-height: 100vh;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .login-button.loading {
+            pointer-events: none;
+        }
+
+        .login-button .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        .login-button.loading .spinner {
+            display: inline-block;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .forgot-password a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: none;
+            min-height: 100vh;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin: 1rem 2rem;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 1rem;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-brand::before {
+            content: "🚀"; /* Changed icon for Tata Connect */
+            font-size: 1.5rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            transform: translateY(-1px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .nav-link.active:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .logout-button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .logout-button:hover {
+            background: #ff5252;
+            transform: translateY(-1px);
+        }
+
+        /* Mobile menu toggle */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .nav-menu.mobile-open {
+            display: flex;
+        }
+
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        /* Page Sections */
+        .page-section {
+            display: none;
+            padding: 2rem;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Courses Section */
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .course-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .course-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .course-title {
+            font-size: 1.4rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .course-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .course-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .course-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .course-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Gallery Section */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .gallery-item {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .gallery-title {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .gallery-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* About Us Section */
+        .about-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .about-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .about-text {
+            color: #333;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .team-member {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .team-member:hover {
+            transform: translateY(-5px);
+        }
+
+        .team-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .team-name {
+            font-size: 1.2rem;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .team-role {
+            color: #667eea;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .team-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Course Details Section Specific Styles */
+        #commisChefDetailsSection .course-card,
+        #fullStackJavaDetailsSection .course-card,
+        #awsRestartDetailsSection .course-card,
+        #foodBeverageDetailsSection .course-card,
+        #frontOfficeDetailsSection .course-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 800px;
+            margin: 0 auto; /* Center the card */
+            text-align: left;
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        #commisChefDetailsSection .course-title,
+        #fullStackJavaDetailsSection .course-title,
+        #awsRestartDetailsSection .course-title,
+        #foodBeverageDetailsSection .course-title,
+        #frontOfficeDetailsSection .course-title {
+            font-size: 1.8rem;
+            text-align: center;
+        }
+        #commisChefDetailsSection .course-icon,
+        #fullStackJavaDetailsSection .course-icon,
+        #awsRestartDetailsSection .course-icon,
+        #foodBeverageDetailsSection .course-icon,
+        #frontOfficeDetailsSection .course-icon {
+            text-align: center;
+        }
+        #commisChefDetailsSection .course-meta,
+        #fullStackJavaDetailsSection .course-meta,
+        #awsRestartDetailsSection .course-meta,
+        #foodBeverageDetailsSection .course-meta,
+        #frontOfficeDetailsSection .course-meta {
+            justify-content: center;
+        }
+        #commisChefDetailsSection .course-description ul,
+        #fullStackJavaDetailsSection .course-description ul,
+        #awsRestartDetailsSection .course-description ul,
+        #foodBeverageDetailsSection .course-description ul,
+        #frontOfficeDetailsSection .course-description ul {
+            list-style: none;
+            padding-left: 1.2rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        #commisChefDetailsSection .course-description ul li,
+        #fullStackJavaDetailsSection .course-description ul li,
+        #awsRestartDetailsSection .course-description ul li,
+        #foodBeverageDetailsSection .course-description ul li,
+        #frontOfficeDetailsSection .course-description ul li {
+            position: relative;
+            margin-bottom: 0.5rem;
+            color: #444;
+        }
+        #commisChefDetailsSection .course-description ul li::before,
+        #fullStackJavaDetailsSection .course-description ul li::before,
+        #awsRestartDetailsSection .course-description ul li::before,
+        #foodBeverageDetailsSection .course-description ul li::before,
+        #frontOfficeDetailsSection .course-description ul li::before {
+            content: '•';
+            color: #667eea;
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .splash-title {
+                font-size: 2rem;
+            }
+
+            .splash-subtitle {
+                font-size: 1rem;
+            }
+
+            .login-card {
+                padding: 2rem;
+                margin: 1rem;
+            }
+
+            .dashboard {
+                padding: 0;
+            }
+
+            .navbar {
+                margin: 1rem;
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-menu {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .nav-link {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                border-radius: 10px;
+                margin-top: 1rem;
+                padding: 1rem;
+                flex-direction: column;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            }
+
+            .nav-links.mobile-open {
+                display: flex;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .courses-grid,
+            .gallery-grid,
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .about-card {
+                padding: 2rem;
+            }
+
+            .dashboard-content {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .splash-logo {
+                width: 100px;
+                height: 100px;
+            }
+
+            .splash-title {
+                font-size: 1.8rem;
+            }
+
+            .login-card {
+                padding: 1.5rem;
+            }
+
+            .navbar {
+                margin: 0.5rem;
+                padding: 0.8rem;
+            }
+
+            .nav-brand {
+                font-size: 1.2rem;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+
+            .course-card,
+            .gallery-item,
+            .about-card,
+            .team-member {
+                padding: 1.5rem;
+            }
+             #commisChefDetailsSection .course-card,
+             #fullStackJavaDetailsSection .course-card,
+             #awsRestartDetailsSection .course-card,
+             #foodBeverageDetailsSection .course-card,
+             #frontOfficeDetailsSection .course-card {
+                padding: 1.5rem;
+            }
+            #commisChefDetailsSection .course-title,
+            #fullStackJavaDetailsSection .course-title,
+            #awsRestartDetailsSection .course-title,
+            #foodBeverageDetailsSection .course-title,
+            #frontOfficeDetailsSection .course-title {
+                font-size: 1.5rem;
+            }
+            #commisChefDetailsSection .course-icon,
+            #fullStackJavaDetailsSection .course-icon,
+            #awsRestartDetailsSection .course-icon,
+            #foodBeverageDetailsSection .course-icon,
+            #frontOfficeDetailsSection .course-icon {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="splash-screen" id="splashScreen">
+    <div class="splash-logo"></div>
+    <h1 class="splash-title">Tata Connect Dwarka</h1>
+    <p class="splash-subtitle">Connecting Minds, Empowering Futures. Your Gateway to Innovation.</p>
+    <div class="loading-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+</div>
+<div class="login-container" id="loginContainer">
+    <div class="login-card">
+        <div class="login-header">
+            <h2 class="login-title">Welcome Back</h2>
+            <p class="login-subtitle">Sign in to access your space</p>
+        </div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input class="form-input" id="email" required="" type="email"/>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input class="form-input" id="password" required="" type="password"/>
+            </div>
+            <button class="login-button" id="loginButton" type="submit">
+                <div class="spinner"></div>
+                Sign In
+            </button>
+        </form>
+        <div class="forgot-password">
+            <a href="#" onclick="alert('Password reset functionality would be implemented here')">Forgot Password?</a>
+        </div>
+    </div>
+</div>
+<div class="dashboard" id="dashboard">
+    <nav class="navbar">
+        <div class="nav-brand">Tata Connect Dwarka</div>
+        <div class="nav-menu">
+            <div class="nav-links" id="navLinks">
+                <a class="nav-link active" href="#" onclick="showSection('dashboard')">Dashboard</a>
+                <a class="nav-link" href="#" onclick="showSection('courses')">Courses</a>
+                <a class="nav-link" href="#" onclick="showSection('gallery')">Gallery</a>
+                <a class="nav-link" href="#" onclick="showSection('about')">About Us</a>
+                <a class="nav-link" href="#" onclick="showSection('contact')">Contact</a>
+            </div>
+            <button class="menu-toggle" onclick="toggleMobileMenu()">☰</button>
+            <button class="logout-button" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+    <div class="page-section active" id="dashboardSection">
+        <div class="section-header">
+            <h1 class="section-title">Welcome to Tata Connect Dwarka! 🚀</h1>
+            <p class="section-subtitle">Your personal learning and growth platform</p>
+        </div>
+        <div class="dashboard-content">
+            <div class="card">
+                <h3>📊 Analytics</h3>
+                <p>View your personal analytics and insights. Track your progress and achievements in your space.</p>
+            </div>
+            <div class="card">
+                <h3>🎯 Goals</h3>
+                <p>Set and manage your personal goals. Stay motivated and track your journey to success.</p>
+            </div>
+            <div class="card">
+                <h3>📚 Resources</h3>
+                <p>Access your personal library of resources, documents, and important information.</p>
+            </div>
+            <div class="card">
+                <h3>⚙️ Settings</h3>
+                <p>Customize your space according to your preferences and manage your account settings.</p>
+            </div>
+        </div>
+    </div>
+    <div class="page-section" id="coursesSection">
+        <div class="section-header">
+            <h1 class="section-title">📚 Our Courses</h1>
+            <p class="section-subtitle">Discover our comprehensive learning programs designed to help you grow and succeed</p>
+        </div>
+        <div class="courses-grid">
+            <div class="course-card">
+                <span class="course-icon">☁️</span>
+                <h3 class="course-title">AWS re/start</h3>
+                <p class="course-description">Eligibility: Applicant must be a STEM Graduate / BCA / MCA / BSc IT / B Tech / M Tech / BE.</p>
+                <div class="course-meta">
+                    <span>⏱️ 12 weeks</span>
+                </div>
+                <button class="course-button" onclick="showSection('awsRestartDetails')">View Details</button>
+            </div>
+            <div class="course-card">
+                <span class="course-icon">👨‍🍳</span>
+                <h3 class="course-title">Commis Chef</h3>
+                <p class="course-description">
+                    Eligibility:
+                    <ul>
+                        <li>12th Class/I.T.I (two years after class 10th) OR</li>
+                        <li>12th Class/I.T.I (one year after class 10th with 1 year of experience in the food production sector) OR</li>
+                        <li>Certificate-NSQF (level-3 Assistant Chef)</li>
+                    </ul>
+                    This course provides you with the knowledge and skills required to work as a Commis Chef in the Tourism & Hospitality industry.
+                </p>
+                <div class="course-meta">
+                    <span>⏱️ 11 weeks classroom + 8 weeks OJT</span>
+                </div>
+                <button class="course-button" onclick="showSection('commisChefDetails')">View Details</button>
+            </div>
+            <div class="course-card">
+                <span class="course-icon">🍽️</span>
+                <h3 class="course-title">Food &amp; Beverage Service Steward</h3>
+                <p class="course-description">Eligibility: 10th Class Pass.</p>
+                <div class="course-meta">
+                    <span>⏱️ 10 weeks classroom + 4 weeks OJT</span>
+                </div>
+                <button class="course-button" onclick="showSection('foodBeverageDetails')">View Details</button>
+            </div>
+            <div class="course-card">
+                <span class="course-icon">👨‍💻</span>
+                <h3 class="course-title">Full Stack Java Developer</h3>
+                <p class="course-description">Eligibility: STEM Graduate / BCA / MCA / BSc IT / B Tech / M Tech / BE | Duration: 16 weeks classroom</p>
+                <div class="course-meta">
+                    <span>⏱️ 16 weeks classroom</span>
+                </div>
+                <button class="course-button" onclick="showSection('fullStackJavaDetails')">View Details</button>
+            </div>
+            <div class="course-card">
+                <span class="course-icon">🏨</span>
+                <h3 class="course-title">Front Office Associate</h3>
+                <p class="course-description">Eligibility: 12th Pass.</p>
+                <div class="course-meta">
+                    <span>⏱️ 7 weeks classroom + 4 weeks OJT</span>
+                </div>
+                <button class="course-button" onclick="showSection('frontOfficeDetails')">View Details</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-section" id="awsRestartDetailsSection">
+        <div class="section-header">
+            <h1 class="section-title">☁️ AWS re/Start Course Details</h1>
+            <p class="section-subtitle">In-depth information about the AWS re/start program.</p>
+        </div>
+        <div class="course-card">
+            <span class="course-icon">☁️</span>
+            <h3 class="course-title">AWS re/start</h3>
+            <p class="course-description">Eligibility: Applicant must be a STEM Graduate / BCA / MCA / BSc IT / B Tech / M Tech / BE.</p>
+            <div class="course-meta">
+                <span>⏱️ 12 weeks</span>
+            </div>
+            <p class="course-description">
+                AWS re/Start is a full-time, skills development program that prepares learners for careers in the cloud. Through real-world, scenario-based learning, hands-on labs, learners gain the technical skills they need for entry-level cloud roles.
+                AWS re/Start also focuses on building professional skills such as adaptive communication, time management, and collaboration. The program’s mission is to build a diverse pipeline of entry-level cloud talent.
+            </p>
+            <p class="course-description">
+                <strong>Domain Skills:</strong>
+                <ul>
+                    <li>Fundamentals of cloud computing, AWS Cloud skills</li>
+                    <li>How to use different programming languages</li>
+                    <li>Build skills aligned with AWS certification - Prepare for the AWS Certified Cloud Practitioner Certification</li>
+                </ul>
+                <strong>Employability Skills:</strong> Effective communication, Problem solving, Teamwork, Time management
+            </p>
+            <p class="course-description">
+                <strong>Centres offering this course:</strong>
+                <ul>
+                    <li>Tata STRIVE Extension Centre – Nagavara Bengaluru (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre – Dwarka Delhi (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Mumbai (Model Name: Tata STRIVE Skill Development Centre)</li>
+                    <li>Tata STRIVE Extension Centre Gurugram (Model Name: 02-TSEC TS)</li>
+                </ul>
+            </p>
+            <button class="course-button" onclick="enrollCourse('AWS re/start')">Enroll Now</button>
+            <button class="course-button" style="margin-top: 10px; background: #6c757d;" onclick="showSection('courses')">Back to Courses</button>
+        </div>
+    </div>
+    <div class="page-section" id="commisChefDetailsSection">
+        <div class="section-header">
+            <h1 class="section-title">👨‍🍳 Commis Chef Course Details</h1>
+            <p class="section-subtitle">In-depth information about the Commis Chef program.</p>
+        </div>
+        <div class="course-card">
+            <span class="course-icon">👨‍🍳</span>
+            <h3 class="course-title">Commis Chef</h3>
+            <p class="course-description">
+                Eligibility:
+                <ul>
+                    <li>12th Class/I.T.I (two years after class 10th) OR</li>
+                    <li>12th Class/I.T.I (one year after class 10th with 1 year of experience in the food production sector) OR</li>
+                    <li>Certificate-NSQF (level-3 Assistant Chef)</li>
+                </ul>
+                This course provides you with the knowledge and skills required to work as a Commis Chef in the Tourism & Hospitality industry.
+            </p>
+            <div class="course-meta">
+                <span>⏱️ 11 weeks classroom + 8 weeks OJT</span>
+            </div>
+            <p class="course-description">
+                <strong>Domain Skills:</strong>
+                <ul>
+                    <li>Set up kitchen for operations</li>
+                    <li>Prepare sauces, salads, cold starters and other base items</li>
+                    <li>Monitor stocks, assist Commis 1 or Chef-de-Partie</li>
+                    <li>Close kitchen at end of day’s operations or shift-end</li>
+                </ul>
+                <strong>Employability Skills:</strong> Communication; Work Place Readiness; Life Skills; Health, Hygiene and Safety Practices
+            </p>
+            <p class="course-description">
+                <strong>Centres offering this course (Model Name: 02-TSEC TS):</strong>
+                <ul>
+                    <li>Tata STRIVE Extension Centre Gingran Gopeshwar</li>
+                    <li>Hospitality Skill Development Centre of Excellence – Assam Kamrup</li>
+                    <li>Tata STRIVE Extension Centre Gwalior</li>
+                    <li>Tata STRIVE Extension Centre SDI Bhubaneswar</li>
+                    <li>Tata STRIVE Extension Centre Varanasi</li>
+                    <li>Tata STRIVE Extension Centre – Dwarka Delhi</li>
+                    <li>Tata STRIVE Extension Centre – WSC School of Services , Bhubaneswar</li>
+                </ul>
+            </p>
+            <p><b> Name of Trainer<b><p>
+            <p>1.abhimanyu singh <p>
+            <p>2. Manish chauhan <p>
+            <button class="course-button" onclick="enrollCourse('Commis Chef')">Enroll Now</button>
+            <button class="course-button" style="margin-top: 10px; background: #6c757d;" onclick="showSection('courses')">Back to Courses</button>
+        </div>
+    </div>
+    <div class="page-section" id="fullStackJavaDetailsSection">
+        <div class="section-header">
+            <h1 class="section-title">👨‍💻 Full Stack Java Developer Course Details</h1>
+            <p class="section-subtitle">In-depth information about the Full Stack Java Developer program.</p>
+        </div>
+        <div class="course-card">
+            <span class="course-icon">👨‍💻</span>
+            <h3 class="course-title">Full Stack Java Developer</h3>
+            <p class="course-description">Eligibility: STEM Graduate / BCA / MCA / BSc IT / B Tech / M Tech / BE | Duration: 16 weeks classroom</p>
+            <p class="course-description">This course prepares you for a career as Full Stack Web Developer in IT/ITES Industry.</p>
+            <div class="course-meta">
+                <span>⏱️ 16 weeks classroom</span>
+            </div>
+            <p class="course-description">
+                <strong>Domain Skills:</strong>
+                <ul>
+                    <li>Learn Software Development Fundamentals, Git, GitHub, SCRUM, HTML, CSS, Javascript, React, SQL, Java, Java Springboot</li>
+                    <li>Develop , Test & Finalize solutions</li>
+                    <li>Fix errors</li>
+                </ul>
+                <strong>Employability Skills:</strong> Growth Mindset, Persistence, Personal Responsibility, Future Orientation, Communication, Detail Orientation, Proactiveness
+            </p>
+            <p class="course-description">
+                <strong>Centres offering this course:</strong>
+                <ul>
+                    <li>Tata STRIVE Mumbai (Model Name: Tata STRIVE Skill Development Centre)</li>
+                    <li>Tata STRIVE Extension Centre Anand (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE – Hyderabad (Model Name: Tata STRIVE Skill Development Centre)</li>
+                    <li>Tata STRIVE Extension Centre – Dwarka Delhi (Model Name: 02-TSEC TS)</li>
+                </ul>
+            </p>
+            <button class="course-button" onclick="enrollCourse('Full Stack Java Developer')">Enroll Now</button>
+            <button class="course-button" style="margin-top: 10px; background: #6c757d;" onclick="showSection('courses')">Back to Courses</button>
+        </div>
+    </div>
+    <div class="page-section" id="foodBeverageDetailsSection">
+        <div class="section-header">
+            <h1 class="section-title">🍽️ Food &amp; Beverage Service Steward Course Details</h1>
+            <p class="section-subtitle">In-depth information about the Food & Beverage Service Steward program.</p>
+        </div>
+        <div class="course-card">
+            <span class="course-icon">🍽️</span>
+            <h3 class="course-title">Food &amp; Beverage Service Steward</h3>
+            <p class="course-description">Eligibility: 10th Class Pass | Duration: 10 weeks classroom + 4 weeks OJT</p>
+            <p class="course-description">This course provides you with the knowledge and skills required to work as a Food & Beverage Service Steward in the Tourism & Hospitality industry.</p>
+            <div class="course-meta">
+                <span>⏱️ 10 weeks classroom + 4 weeks OJT</span>
+            </div>
+            <p class="course-description">
+                <strong>Domain Skills:</strong>
+                <ul>
+                    <li>Greet and seat guests</li>
+                    <li>Take down their orders</li>
+                    <li>Serve them with tableware, food, beverages, and accompaniments</li>
+                    <li>Clear the used dishes and settle customer’s accounts</li>
+                </ul>
+                <strong>Soft Skills:</strong> Communication; Work Place Readiness; Life Skills; Health, Hygiene and Safety Practices; Problem-Solving
+            </p>
+            <p class="course-description">
+                <strong>Centres offering this course:</strong>
+                <ul>
+                    <li>Tata STRIVE Extension Centre Gingran Gopeshwar (Model Name: 02-TSEC TS)</li>
+                    <li>Hospitality Skill Development Centre of Excellence – Assam Kamrup (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre Gwalior (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre – Lucknow (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre SDI Bhubaneswar (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre Varanasi (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre – Pollibeta (Model Name: 02-TSEC IP)</li>
+                    <li>Tata STRIVE – Hyderabad (Model Name: Tata STRIVE Skill Development Centre)</li>
+                    <li>Tata STRIVE – Midnapore (Model Name: Tata STRIVE Skill Development Centre)</li>
+                    <li>Tata STRIVE Mumbai (Model Name: Tata STRIVE Skill Development Centre)</li>
+                    <li>Tata STRIVE Extension Centre – Nagavara Bengaluru (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre – Dwarka Delhi (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre – WSC School of Services , Bhubaneswar (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre Jodhpur (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre Ekta Nagar (Model Name: 02-TSEC TS)</li>
+                </ul>
+            </p>
+            <button class="course-button" onclick="enrollCourse('Food & Beverage Service Steward')">Enroll Now</button>
+            <button class="course-button" style="margin-top: 10px; background: #6c757d;" onclick="showSection('courses')">Back to Courses</button>
+        </div>
+    </div>
+    <div class="page-section" id="frontOfficeDetailsSection">
+        <div class="section-header">
+            <h1 class="section-title">🏨 Front Office Associate Course Details</h1>
+            <p class="section-subtitle">In-depth information about the Front Office Associate program.</p>
+        </div>
+        <div class="course-card">
+            <span class="course-icon">🏨</span>
+            <h3 class="course-title">Front Office Associate</h3>
+            <p class="course-description">Eligibility: 12th Pass | Duration: 7 weeks classroom + 4 weeks OJT</p>
+            <p class="course-description">This course provides you with the knowledge and skills required to work as a Front Office Associate in the Tourism & Hospitality industry.</p>
+            <div class="course-meta">
+                <span>⏱️ 7 weeks classroom + 4 weeks OJT</span>
+            </div>
+            <p class="course-description">
+                <strong>Domain Skills:</strong>
+                <ul>
+                    <li>Receive guests</li>
+                    <li>Handle guest registration process</li>
+                    <li>Attend to guest requirements</li>
+                    <li>Cashier and handle guest accounts during stay</li>
+                </ul>
+                <strong>Soft Skills:</strong> Communication; Work Place Readiness; Life Skills; Health, Hygiene and Safety Practices; Problem-Solving
+            </p>
+            <p class="course-description">
+                <strong>Centres offering this course:</strong>
+                <ul>
+                    <li>Hospitality Skill Development Centre of Excellence – Assam Kamrup (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre Gwalior (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre – Lucknow (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE – Hyderabad (Model Name: Tata STRIVE Skill Development Centre)</li>
+                    <li>Tata STRIVE Extension Centre – Dwarka Delhi (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre – Nagavara Bengaluru (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre – WSC School of Services , Bhubaneswar (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Mumbai (Model Name: Tata STRIVE Skill Development Centre)</li>
+                    <li>Tata STRIVE Extension Centre Behala Kolkata (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre – Chanderia (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre Nagpur Wadi (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre Ponda- Goa (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre Varanasi (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre – Chromepet Chennai (Model Name: 02-TSEC TS)</li>
+                    <li>Tata STRIVE Extension Centre Ekta Nagar (Model Name: 02-TSEC TS)</li>
+                </ul>
+            </p>
+            <button class="course-button" onclick="enrollCourse('Front Office Associate')">Enroll Now</button>
+            <button class="course-button" style="margin-top: 10px; background: #6c757d;" onclick="showSection('courses')">Back to Courses</button>
+        </div>
+    </div>
+    <div class="page-section" id="gallerySection">
+        <div class="section-header">
+            <h1 class="section-title">🖼️ Gallery</h1>
+            <p class="section-subtitle">Explore our community achievements, events, and memorable moments</p>
+        </div>
+        <div class="gallery-grid">
+            <div class="gallery-item">
+                
+                <h3 class="gallery-title">Tata centre</h3>
+                <img src="tatacentre.jpg" width ="250" height="200"></img>
+            </div>
+            <div class="gallery-item">
+                
+                
+                <video src="demo2.mp4" width="250dp" height="200dp" controls></video>
+            </div>
+            <div class="gallery-item">
+                
+                
+                <video src="demo.mp4" width="250dp" height="200dp " controls></video>
+                
+            </div>
+            <div class="gallery-item">
+               
+                <h3 class="gallery-title">Sulabh visit</h3>
+              <img src="demo5.jpg" width ="250" height="200"></img>
+            </div>
+            <div class="gallery-item">
+                
+                <h3 class="gallery-title">Sulabh Visit </h3>
+               <img src="demo3.jpg" width ="250" height="200"></img>
+            </div>
+            <div class="gallery-item">
+          
+                <h3 class="gallery-title">Group Presentation</h3>
+                  <img src="demo4.jpg" width ="250" height="200"></img>
+            </div>
+        </div>
+    </div>
+    <div class="page-section" id="aboutSection">
+        <div class="section-header">
+            <h1 class="section-title">🏢 About Tata STRIVE Dwarka</h1>
+            <p class="section-subtitle">Learn more about Tata STRIVE's mission, leadership, and governance</p>
+        </div>
+        <div class="about-content">
+            <div class="about-card">
+                <p class="about-text">
+                    Tata STRIVE is a Skill Development programme housed under the overall governance of Tata Community Initiatives Trust (TCIT),
+                    which was established in October 2014 by Tata Sons Private Limited. Today, Tata STRIVE functions under the aegis of the Tata Trusts.
+                    TCIT is governed by a Board of Trustees.
+                </p>
+            </div>
+
+            <div class="card" style="margin-bottom: 2rem;">
+                <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Board of Trustees</h3>
+                <div class="team-grid">
+                    <div class="team-member">
+                        <div class="team-avatar">👤</div>
+                        <h3 class="team-name">Suprakash Mukhopadhyay</h3>
+                        <p class="team-role">Global Treasury Head and Company Secretary</p>
+                        <p class="team-description">Key financial and governance leader for the Trust.</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="team-avatar">👩‍💼</div>
+                        <h3 class="team-name">Roopa Purushothaman</h3>
+                        <p class="team-role">Chief Economist and Head of Policy Advocacy at Tata Sons Limited</p>
+                        <p class="team-description">Drives economic policy and advocacy for Tata Sons.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Tata STRIVE Leadership</h3>
+                <div class="team-grid">
+                    <div class="team-member">
+                        <div class="team-avatar">👨‍💼</div>
+                        <h3 class="team-name">Ameya Vanjari</h3>
+                        <p class="team-role">Chief Operating Officer</p>
+                        <p class="team-description">Responsible for overall operations and strategic execution.</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="team-avatar">👩‍🏫</div>
+                        <h3 class="team-name">Anita Rajan</h3>
+                        <p class="team-role">Advisor</p>
+                        <p class="team-description">Provides strategic guidance and expertise to the leadership team.</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="team-avatar">🎨</div>
+                        <h3 class="team-name">Ajita Karve</h3>
+                        <p class="team-role">Head – Design, Quality & Communications</p>
+                        <p class="team-description">Ensures excellence in design, quality standards, and external communications.</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="team-avatar">🤝</div>
+                        <h3 class="team-name">Bijitha Joyce</h3>
+                        <p class="team-role">Head – Ecosystem Strengthening</p>
+                        <p class="team-description">Focuses on building and strengthening partnerships within the skill development ecosystem.</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="team-avatar"> HR </div>
+                        <h3 class="team-name">Mohit Deshpande</h3>
+                        <p class="team-role">Head – Human Resources</p>
+                        <p class="team-description">Manages talent acquisition, development, and employee welfare.</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="team-avatar">💡</div>
+                        <h3 class="team-name">Raghu Reddy</h3>
+                        <p class="team-role">Head – Technology & Innovation</p>
+                        <p class="team-description">Leads technological advancements and innovative solutions for the programs.</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="team-avatar">📈</div>
+                        <h3 class="team-name">Rajarshi Mukherjee</h3>
+                        <p class="team-role">Head – Partnerships & Programme Dev.</p>
+                        <p class="team-description">Develops strategic partnerships and new program initiatives.</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="team-avatar">🛠️</div>
+                        <h3 class="team-name">Shiladitya Samaddar</h3>
+                        <p class="team-role">Head – Operations Skill Dev & Entrepreneurship</p>
+                        <p class="team-description">Oversees operational aspects of skill development and entrepreneurship programs.</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="team-avatar">💰</div>
+                        <h3 class="team-name">Venkat Raidu</h3>
+                        <p class="team-role">Head – Finance</p>
+                        <p class="team-description">Manages financial planning and operations for Tata STRIVE.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-section" id="contactSection">
+        <div class="section-header">
+            <h1 class="section-title">📞 Contact Us</h1>
+            <p class="section-subtitle">Reach out to us for more information</p>
+        </div>
+        <div class="about-content">
+            <div class="card">
+                <h3>🏢 Address</h3>
+                <p>Rao Nahar Singh Tower, Above Graphdoer Experience Centre, Mahavir Enclave, Dwarka, New Delhi – 110045</p>
+            </div>
+            <div class="card" style="margin-top: 2rem;">
+                <h3>📧 Contact Details</h3>
+                <p><strong>Toll Free No:</strong> 8299117433</p>
+                <p><strong>Email:</strong> Devendra.Kaushal@tatastrive.com</p>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Global state
+    let currentUser = null;
+
+    // Initialize app
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show splash screen for 3 seconds
+        setTimeout(() => {
+            hideSplashScreen();
+        }, 3000);
+
+        // Setup login form
+        setupLoginForm();
+    });
+
+    function hideSplashScreen() {
+        const splashScreen = document.getElementById('splashScreen');
+        const loginContainer = document.getElementById('loginContainer');
+
+        splashScreen.classList.add('fade-out');
+
+        setTimeout(() => {
+            splashScreen.style.display = 'none';
+            loginContainer.style.display = 'flex';
+        }, 500);
+    }
+
+    function setupLoginForm() {
+        const loginForm = document.getElementById('loginForm');
+        const loginButton = document.getElementById('loginButton');
+
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Show loading state
+            loginButton.classList.add('loading');
+            loginButton.disabled = true;
+
+            // Simulate authentication (replace with real authentication)
+            try {
+                const success = await simulateLogin(email, password);
+
+                if (success) {
+                    currentUser = { email: email, name: email.split('@')[0] };
+                    showDashboard();
+                } else {
+                    alert('Invalid credentials. Try: demo@example.com / password123');
+                }
+            } catch (error) {
+                alert('Login failed. Please try again.');
+            } finally {
+                loginButton.classList.remove('loading');
+                loginButton.disabled = false;
+            }
+        });
+    }
+
+    async function simulateLogin(email, password) {
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // Demo credentials (replace with real authentication)
+        return (email === 'demo@example.com' && password === 'password123') ||
+               (email === 'user@test.com' && password === 'test123');
+    }
+
+    function showDashboard() {
+        const loginContainer = document.getElementById('loginContainer');
+        const dashboard = document.getElementById('dashboard');
+
+        loginContainer.style.display = 'none';
+        dashboard.style.display = 'block';
+
+        // Update welcome message (if you re-add a specific welcome-text element in Dashboard)
+        // For now, the general "Welcome to Tata Connect Dwarka!" is fine.
+        // const welcomeText = document.querySelector('.welcome-text');
+        // if (currentUser) {
+        //     welcomeText.textContent = `Welcome ${currentUser.name}! 🚀`;
+        // }
+    }
+
+    function logout() {
+        currentUser = null;
+        const loginContainer = document.getElementById('loginContainer');
+        const dashboard = document.getElementById('dashboard');
+
+        dashboard.style.display = 'none';
+        loginContainer.style.display = 'flex';
+
+        // Clear form
+        document.getElementById('loginForm').reset();
+    }
+
+    function showSection(sectionId) {
+        // Hide all sections
+        document.querySelectorAll('.page-section').forEach(section => {
+            section.classList.remove('active');
+        });
+
+        // Show the selected section
+        document.getElementById(sectionId + 'Section').classList.add('active');
+
+        // Update active nav link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        // This targets both the original navigation links and adds an active class if present
+        const correspondingNavLink = document.querySelector(`.nav-link[onclick="showSection('${sectionId}')"]`);
+        if (correspondingNavLink) {
+            correspondingNavLink.classList.add('active');
+        }
+
+
+        // Hide mobile menu after selection (if open)
+        const navLinks = document.getElementById('navLinks');
+        if (navLinks.classList.contains('mobile-open')) {
+            navLinks.classList.remove('mobile-open');
+        }
+    }
+
+    function toggleMobileMenu() {
+        const navLinks = document.getElementById('navLinks');
+        navLinks.classList.toggle('mobile-open');
+    }
+
+    function enrollCourse(courseName) {
+        if (currentUser) {
+            alert(`You have successfully enrolled in the ${courseName} course!`);
+            // Here you would typically send data to a backend to truly enroll the user
+        } else {
+            alert('Please sign in to enroll in courses.');
+            showSection('login'); // Redirect to login if not signed in
+        }
+    }
+
+    // Touch/click enhancements for mobile
+    document.addEventListener('touchstart', function() {}, { passive: true });
+
+    // Prevent zoom on double tap for iOS
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(event) {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+</script>
+</body>
+</html>
